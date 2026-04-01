@@ -4,346 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenSprite</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700;900&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #f0ece4;
-      --black: #1a1a1a;
-      --accent: #ff4d00;
-      --accent2: #0038ff;
-      --border: 3px solid var(--black);
-      --shadow: 6px 6px 0 var(--black);
-      --shadow-sm: 3px 3px 0 var(--black);
-    }
-
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--black); min-height: 100vh; overflow-x: hidden; }
-
-    header {
-      border-bottom: var(--border); padding: 20px 32px; display: flex; align-items: center;
-      justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 100;
-    }
-    .logo { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; letter-spacing: -1px; }
-    .logo span { color: var(--accent); }
-    .header-badge { font-family: 'Space Mono', monospace; font-size: 11px; background: var(--black); color: var(--bg); padding: 6px 12px; text-transform: uppercase; letter-spacing: 2px; }
-
-    main { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 72px); }
-
-    .sidebar { border-right: var(--border); padding: 0; display: flex; flex-direction: column; }
-    .sidebar-section { border-bottom: var(--border); padding: 24px; animation: slideUp 0.4s ease-out backwards; }
-    .sidebar-section:last-child { border-bottom: none; }
-    .sidebar-section:nth-child(1) { animation-delay: 0.05s; }
-    .sidebar-section:nth-child(2) { animation-delay: 0.1s; }
-    .sidebar-section:nth-child(3) { animation-delay: 0.15s; }
-    .sidebar-section:nth-child(4) { animation-delay: 0.2s; }
-    .sidebar-section:nth-child(5) { animation-delay: 0.25s; }
-    .sidebar-section:nth-child(6) { animation-delay: 0.3s; }
-
-    .section-label { font-family: 'Space Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 14px; color: var(--accent); font-weight: 700; }
-
-    input[type="text"], input[type="password"], input[type="number"], textarea {
-      width: 100%; padding: 12px 14px; font-family: 'Space Mono', monospace; font-size: 13px;
-      border: var(--border); background: #fff; color: var(--black); outline: none; transition: box-shadow 0.15s;
-    }
-    input:focus, textarea:focus { box-shadow: var(--shadow-sm); }
-    textarea { resize: vertical; min-height: 70px; }
-    label { display: block; font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 700; }
-    .input-group { margin-bottom: 16px; }
-    .input-group:last-child { margin-bottom: 0; }
-
-    .upload-zone {
-      border: 3px dashed var(--black); padding: 32px; text-align: center; cursor: pointer;
-      transition: all 0.2s; background: #fff; position: relative; overflow: hidden;
-    }
-    .upload-zone:hover { background: var(--black); color: var(--bg); }
-    .upload-zone.has-image { padding: 12px; border-style: solid; }
-    .upload-zone img { max-width: 100%; max-height: 200px; image-rendering: pixelated; display: block; margin: 0 auto; }
-    .upload-icon { font-size: 36px; margin-bottom: 8px; }
-    .upload-text { font-family: 'Space Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-    #fileInput { display: none; }
-
-    .btn {
-      font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 2px; padding: 16px 24px; border: var(--border); cursor: pointer; transition: all 0.1s;
-      display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;
-    }
-    .btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow); }
-    .btn-primary:hover { transform: translate(2px, 2px); box-shadow: 4px 4px 0 var(--black); }
-    .btn-primary:active { transform: translate(6px, 6px); box-shadow: none; }
-    .btn-primary:disabled { background: #999; cursor: not-allowed; box-shadow: var(--shadow); transform: none; }
-    .btn-secondary { background: var(--black); color: var(--bg); box-shadow: var(--shadow); }
-    .btn-secondary:hover { transform: translate(2px, 2px); box-shadow: 4px 4px 0 var(--accent); }
-    .btn-download { background: var(--accent2); color: #fff; box-shadow: var(--shadow); }
-    .btn-download:hover { transform: translate(2px, 2px); box-shadow: 4px 4px 0 var(--black); }
-    .btn-sm { padding: 10px 16px; font-size: 11px; letter-spacing: 1px; }
-
-    .frame-selector { display: flex; align-items: center; gap: 12px; }
-    .frame-selector input[type="number"] { width: 70px; text-align: center; }
-    .frame-hint { font-size: 10px; font-family: 'Space Mono', monospace; color: #888; margin-top: 4px; }
-
-    .content { padding: 32px; display: flex; flex-direction: column; gap: 24px; }
-
-    .status-bar {
-      border: var(--border); background: #fff; padding: 16px 20px; font-family: 'Space Mono', monospace;
-      font-size: 12px; display: flex; align-items: center; gap: 12px;
-    }
-    .status-dot { width: 10px; height: 10px; background: #ccc; border: 2px solid var(--black); flex-shrink: 0; }
-    .status-dot.active { background: #00ff66; animation: pulse 1s infinite; }
-    .status-dot.error { background: var(--accent); }
-    .status-dot.done { background: var(--accent2); }
-
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    .progress-container {
-      border: var(--border); background: #fff; height: 40px; position: relative; overflow: hidden; display: none;
-    }
-    .progress-container.visible { display: block; }
-    .progress-bar { height: 100%; background: var(--accent); transition: width 0.3s; position: relative; }
-    .progress-bar::after {
-      content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 30px;
-      background: repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(0,0,0,0.15) 4px, rgba(0,0,0,0.15) 8px);
-      animation: barberpole 0.5s linear infinite;
-    }
-    @keyframes barberpole { 0% { background-position: 0 0; } 100% { background-position: 16px 0; } }
-    .progress-label {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 2px; z-index: 1; mix-blend-mode: difference; color: #fff;
-    }
-
-    .preview-area {
-      border: var(--border); background: repeating-conic-gradient(#e0e0e0 0% 25%, #fff 0% 50%) 0 0 / 20px 20px;
-      min-height: 300px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
-    }
-    .preview-area.empty::after {
-      content: 'GENERATED FRAMES APPEAR HERE'; font-family: 'Space Mono', monospace; font-size: 12px;
-      letter-spacing: 3px; color: #aaa; text-transform: uppercase;
-    }
-    .preview-sprite { image-rendering: pixelated; max-height: 256px; }
-
-    .frames-grid-wrapper { display: none; }
-    .frames-grid-wrapper.visible { display: block; }
-    .frames-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-    .frames-header h3 { font-family: 'Space Mono', monospace; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
-    .frames-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-    .frame-card { border: var(--border); background: #fff; overflow: hidden; transition: transform 0.15s; }
-    .frame-card:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-sm); }
-    .frame-card-img {
-      background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
-      padding: 12px; display: flex; align-items: center; justify-content: center; min-height: 120px;
-    }
-    .frame-card-img img { image-rendering: pixelated; max-width: 100%; max-height: 96px; }
-    .frame-card-label {
-      border-top: var(--border); padding: 8px 10px; font-family: 'Space Mono', monospace; font-size: 9px;
-      text-transform: uppercase; letter-spacing: 1px; background: var(--black); color: var(--bg);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-
-    .spritesheet-section { display: none; }
-    .spritesheet-section.visible { display: block; }
-    .spritesheet-canvas-wrap {
-      border: var(--border); background: repeating-conic-gradient(#e0e0e0 0% 25%, #fff 0% 50%) 0 0 / 20px 20px;
-      padding: 16px; overflow-x: auto;
-    }
-    .spritesheet-canvas-wrap canvas { image-rendering: pixelated; max-width: 100%; }
-    .download-btns { display: flex; gap: 12px; margin-top: 16px; }
-    .download-btns .btn { width: auto; flex: 1; }
-
-    .anim-preview-bar {
-      border: var(--border); background: #fff; padding: 16px 20px; display: none; align-items: center; gap: 16px;
-    }
-    .anim-preview-bar.visible { display: flex; }
-    .anim-canvas-wrap {
-      width: 80px; height: 80px;
-      background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 0 0 / 10px 10px;
-      border: 2px solid var(--black); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .anim-canvas-wrap img { image-rendering: pixelated; max-width: 64px; max-height: 64px; }
-    .anim-controls { display: flex; flex-direction: column; gap: 6px; }
-    .anim-controls label { margin-bottom: 0; }
-    .fps-control { display: flex; align-items: center; gap: 8px; }
-    .fps-control input[type="range"] { flex: 1; accent-color: var(--accent); }
-    .fps-value { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; min-width: 50px; }
-
-    .marquee {
-      border-bottom: var(--border); background: var(--black); color: var(--bg); font-family: 'Space Mono', monospace;
-      font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 8px 0; overflow: hidden; white-space: nowrap;
-    }
-    .marquee-inner { display: inline-block; animation: marquee 20s linear infinite; }
-    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-    .batch-info { font-family: 'Space Mono', monospace; font-size: 10px; color: #888; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px; }
-
-    .debug-panel {
-      display: none; border: var(--border); background: #1a1a1a; color: #0f0; padding: 16px;
-      font-family: 'Space Mono', monospace; font-size: 10px; max-height: 300px; overflow: auto;
-      white-space: pre-wrap; word-break: break-all;
-    }
-    .debug-panel.visible { display: block; }
-    .debug-toggle {
-      font-family: 'Space Mono', monospace; font-size: 10px; background: none; border: none;
-      color: #888; cursor: pointer; text-decoration: underline; padding: 0; margin-top: 8px;
-    }
-    .debug-toggle:hover { color: var(--accent); }
-
-    .raw-strip { margin-top: 12px; }
-    .raw-strip h4 { font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #888; }
-    .raw-strip-img {
-      border: var(--border); background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
-      padding: 8px; overflow-x: auto;
-    }
-    .raw-strip-img img { image-rendering: pixelated; max-height: 120px; }
-
-    /* ─── MANUAL CROP MODE ──────────────────────── */
-    .split-chooser { display: none; padding: 24px; border: var(--border); background: #fafafa; margin-bottom: 24px; }
-    .split-chooser.visible { display: block; animation: fadeIn 0.3s ease-out; }
-    .split-chooser-header { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.5px; }
-    .split-chooser-strips { margin-bottom: 16px; }
-    .split-chooser-strips img { image-rendering: pixelated; max-height: 80px; margin-bottom: 6px; display: block; border: 1px solid #ddd; }
-    .split-chooser-strips .strip-label { font-family: 'Space Mono', monospace; font-size: 9px; color: #888; margin-bottom: 2px; }
-
-    .manual-crop-section { display: none; }
-    .manual-crop-section.visible { display: block; }
-
-    .crop-toolbar {
-      border: var(--border); background: #fff; padding: 16px 20px; display: flex; align-items: center;
-      gap: 16px; flex-wrap: wrap; margin-bottom: 12px;
-    }
-    .crop-toolbar .input-group { margin-bottom: 0; }
-    .crop-toolbar input[type="number"] { width: 80px; }
-    .crop-toolbar label { margin-bottom: 4px; }
-
-    .crop-info {
-      font-family: 'Space Mono', monospace; font-size: 11px; flex: 1;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .crop-info .frame-tag {
-      background: var(--accent); color: #fff; padding: 4px 10px; font-size: 10px; font-weight: 700;
-      letter-spacing: 1px; text-transform: uppercase;
-    }
-
-    .crop-canvas-wrap {
-      border: var(--border); position: relative; overflow: auto;
-      background: repeating-conic-gradient(#e0e0e0 0% 25%, #fff 0% 50%) 0 0 / 20px 20px;
-      max-height: 600px; cursor: crosshair;
-    }
-    .crop-canvas-wrap canvas { image-rendering: pixelated; display: block; }
-
-    .crop-preview-wrap {
-      border: var(--border); background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
-      padding: 12px; display: flex; align-items: center; justify-content: center; min-height: 100px;
-      margin-top: 12px;
-    }
-    .crop-preview-wrap canvas { image-rendering: pixelated; }
-
-    .crop-actions { display: flex; gap: 12px; margin-top: 12px; }
-    .crop-actions .btn { flex: 1; }
-
-    .mode-toggle {
-      display: flex; border: var(--border); overflow: hidden;
-    }
-    .mode-toggle button {
-      flex: 1; padding: 10px 12px; font-family: 'Space Mono', monospace; font-size: 10px;
-      font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-      border: none; cursor: pointer; transition: all 0.15s; background: #fff; color: var(--black);
-    }
-    .mode-toggle button.active { background: var(--black); color: var(--bg); }
-    .mode-toggle button:not(:last-child) { border-right: var(--border); }
-
-    /* ─── TRUST & INFO BADGES ─────────────────── */
-    .model-badge {
-      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-      border: 2px solid var(--black); background: #fff; margin-top: 10px;
-      font-family: 'Space Mono', monospace; font-size: 10px;
-      animation: fadeIn 0.6s ease-out 0.4s backwards;
-    }
-    .model-badge-dot {
-      width: 8px; height: 8px; border-radius: 50%; background: #00cc55; flex-shrink: 0;
-      box-shadow: 0 0 6px rgba(0,204,85,0.5);
-    }
-    .model-badge-name { font-weight: 700; letter-spacing: 0.5px; }
-    .model-badge-via { color: #888; }
-
-    .privacy-notice {
-      display: flex; align-items: flex-start; gap: 8px; margin-top: 10px;
-      padding: 10px 14px; background: #e8f5e9; border: 2px solid #4caf50;
-      font-family: 'Space Mono', monospace; font-size: 9px; line-height: 1.5;
-      color: #2e7d32; animation: fadeIn 0.6s ease-out 0.5s backwards;
-    }
-    .privacy-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* ─── FOOTER ───────────────────────────────── */
-    .site-footer {
-      border-top: var(--border); padding: 24px 32px; display: flex;
-      align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
-      font-family: 'Space Mono', monospace; font-size: 10px;
-      background: var(--black); color: #888;
-    }
-    .footer-left { display: flex; align-items: center; gap: 16px; }
-    .footer-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
-      border: 1px solid #444; color: #bbb; text-transform: uppercase; letter-spacing: 1.5px;
-      transition: all 0.2s;
-    }
-    .footer-badge:hover { border-color: var(--accent); color: #fff; }
-    .footer-badge svg { width: 14px; height: 14px; fill: currentColor; }
-    .footer-links { display: flex; gap: 16px; }
-    .footer-links a {
-      color: #888; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
-      transition: color 0.2s;
-    }
-    .footer-links a:hover { color: var(--accent); }
-
-    /* ─── SMOOTHER TRANSITIONS ────────────────── */
-    .sidebar-section { transition: background 0.2s; }
-    .sidebar-section:hover { background: rgba(0,0,0,0.015); }
-
-    .upload-zone { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .upload-zone:hover { transform: translateY(-1px); }
-    .upload-zone.has-image:hover { transform: none; }
-
-    .btn { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
-
-    .frame-card {
-      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
-      animation: cardIn 0.3s ease-out backwards;
-    }
-    @keyframes cardIn { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-    .preview-area { transition: background 0.3s; }
-    .preview-sprite { transition: opacity 0.15s; }
-
-    .status-bar { transition: all 0.3s; }
-
-    .progress-bar { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-
-    .anim-preview-bar { transition: all 0.3s; }
-    .anim-preview-bar.visible { animation: fadeIn 0.4s ease-out; }
-
-    .frames-grid-wrapper.visible { animation: fadeIn 0.4s ease-out; }
-    .spritesheet-section.visible { animation: fadeIn 0.4s ease-out; }
-
-    .manual-crop-section.visible { animation: fadeIn 0.3s ease-out; }
-
-    .mode-toggle button { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-
-    @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
-      .sidebar { border-right: none; border-bottom: var(--border); }
-      .site-footer { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="marquee">
   <div class="marquee-inner">
-    OPENSPRITE — OPEN SOURCE SPRITE SHEET GENERATOR — NO BACKEND — YOUR KEY STAYS IN YOUR BROWSER — POWERED BY GEMINI 3.1 FLASH &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; OPENSPRITE — OPEN SOURCE SPRITE SHEET GENERATOR — NO BACKEND — YOUR KEY STAYS IN YOUR BROWSER — POWERED BY GEMINI 3.1 FLASH &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;
+    OPENSPRITE — OPEN SOURCE SPRITE SHEET GENERATOR — NO BACKEND — POWERED BY FLUX.1 [DEV] LOCAL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; OPENSPRITE — OPEN SOURCE SPRITE SHEET GENERATOR — NO BACKEND — POWERED BY FLUX.1 [DEV] LOCAL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;
   </div>
 </div>
 
@@ -351,29 +18,58 @@
   <div class="logo">OPEN<span>SPRITE</span></div>
   <div style="display:flex;align-items:center;gap:10px;">
     <div class="header-badge">Open Source</div>
-    <div class="header-badge" style="background:var(--accent);">v3.0</div>
+    <div class="header-badge" style="background:var(--accent);">v3.1</div>
   </div>
 </header>
 
 <main>
   <div class="sidebar">
     <div class="sidebar-section">
-      <div class="section-label">API Key</div>
+      <div class="section-label">Local API</div>
       <div class="input-group">
-        <label for="apiKey">OpenRouter Key</label>
-        <input type="password" id="apiKey" placeholder="sk-or-v1-..." />
+        <label for="localUrl">A1111 / Forge URL</label>
+        <input type="text" id="localUrl" placeholder="http://localhost:7860" value="http://localhost:7860" />
       </div>
       <div class="model-badge">
         <div class="model-badge-dot"></div>
-        <span class="model-badge-name">Gemini 3.1 Flash</span>
-        <span class="model-badge-via">via OpenRouter</span>
+        <span class="model-badge-name">FLUX.1 [dev]</span>
+        <span class="model-badge-via">local · txt2img + img2img</span>
       </div>
       <div class="privacy-notice">
         <span class="privacy-icon">&#x1f512;</span>
-        <span>Your API key never leaves your browser. There is no backend — all calls go directly from your browser to OpenRouter's API. View the source to verify.</span>
+        <span>Calls your local AUTOMATIC1111 / Forge server. No data leaves your machine.</span>
       </div>
     </div>
 
+    <!-- ── GENERATE CHARACTER ── -->
+    <div class="sidebar-section">
+      <div class="section-label">Generate Character</div>
+      <div class="input-group">
+        <label for="charPrompt">Character description</label>
+        <textarea id="charPrompt" placeholder="e.g. knight with red armor, side view, pixel art..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>Output size</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="number" id="charGenW" value="64" min="16" max="256" style="width:64px;text-align:center;" />
+          <span style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;">×</span>
+          <input type="number" id="charGenH" value="64" min="16" max="256" style="width:64px;text-align:center;" />
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:#888;">px</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="charGenBtn" disabled>Generate Character</button>
+      <div class="char-gen-preview" id="charGenPreview" style="display:none;">
+        <div class="char-gen-img-wrap">
+          <img id="charGenImg" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-primary btn-sm" id="charGenUseBtn" style="flex:1;">Use as Sprite</button>
+          <button class="btn btn-secondary btn-sm" id="charGenDownloadBtn" style="flex:1;">Download</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SOURCE SPRITE ── -->
     <div class="sidebar-section">
       <div class="section-label">Source Sprite</div>
       <div class="upload-zone" id="uploadZone">
@@ -383,6 +79,7 @@
       <input type="file" id="fileInput" accept="image/*" />
     </div>
 
+    <!-- ── ANIMATION ── -->
     <div class="sidebar-section">
       <div class="section-label">Animation</div>
       <div class="input-group">
@@ -395,6 +92,7 @@
       </div>
     </div>
 
+    <!-- ── FRAMES ── -->
     <div class="sidebar-section">
       <div class="section-label">Frames</div>
       <div class="input-group">
@@ -412,15 +110,35 @@
       <div class="batch-info" id="batchInfo"></div>
     </div>
 
+    <!-- ── BACKGROUND ── -->
+    <div class="sidebar-section">
+      <div class="section-label">Background</div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:12px;">
+        <input type="checkbox" id="removeBg" style="width:auto;accent-color:var(--accent);" />
+        <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Remove background (transparent)</span>
+      </label>
+      <div id="bgThresholdWrap" style="display:none;">
+        <label>Sensitivity</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="bgThreshold" min="5" max="80" value="30" style="flex:1;accent-color:var(--accent);" />
+          <span id="bgThresholdVal" style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;min-width:24px;">30</span>
+        </div>
+        <div class="frame-hint" style="margin-top:4px;">Lower = tighter match to background color</div>
+      </div>
+    </div>
+
+    <!-- ── GENERATE ── -->
     <div class="sidebar-section">
       <button class="btn btn-primary" id="generateBtn" disabled>Generate Spritesheet</button>
+      <button class="btn btn-cancel" id="cancelBtn" style="display:none;margin-top:8px;">✕ Cancel Generation</button>
+      <button class="btn btn-retry" id="retryBtn" style="display:none;margin-top:8px;">↻ Retry Failed Batch</button>
     </div>
   </div>
 
   <div class="content">
     <div class="status-bar">
       <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">Ready — upload a sprite to begin</span>
+      <span id="statusText">Ready — upload or generate a sprite to begin</span>
     </div>
 
     <div class="progress-container" id="progressContainer">
@@ -441,7 +159,7 @@
 
     <!-- Post-generation split mode chooser -->
     <div class="split-chooser" id="splitChooser">
-      <div class="split-chooser-header">All frames generated — choose how to split</div>
+      <div class="split-chooser-header">All frames generated — drag orange lines to adjust split points</div>
       <div class="split-chooser-strips" id="splitChooserStrips"></div>
       <div class="mode-toggle" style="max-width:340px;">
         <button id="chooserAuto" class="active">Auto Split</button>
@@ -496,11 +214,15 @@
     </div>
 
     <div class="spritesheet-section" id="spritesheetSection">
-      <div class="frames-header"><h3>Spritesheet</h3><button class="btn btn-sm btn-secondary" id="resplitBtn" style="margin-left:auto;">Re-split Frames</button></div>
+      <div class="frames-header">
+        <h3>Spritesheet</h3>
+        <button class="btn btn-sm btn-secondary" id="resplitBtn" style="margin-left:auto;">Re-split Frames</button>
+      </div>
       <div class="spritesheet-canvas-wrap"><canvas id="spritesheetCanvas"></canvas></div>
       <div class="download-btns">
-        <button class="btn btn-download" id="downloadSheet">Download Spritesheet</button>
-        <button class="btn btn-secondary" id="downloadZip">Download All Frames (.zip)</button>
+        <button class="btn btn-download" id="downloadSheet">Download Spritesheet (PNG)</button>
+        <button class="btn btn-secondary" id="downloadZip">Download Frames (.zip)</button>
+        <button class="btn btn-secondary" id="downloadGif">Download Animated GIF</button>
       </div>
     </div>
   </div>
@@ -519,845 +241,12 @@
     </div>
   </div>
   <div class="footer-links">
-    <span style="color:#555;">Powered by Gemini 3.1 Flash via OpenRouter</span>
+    <span style="color:#555;">Powered by FLUX.1 [dev] — local inference</span>
   </div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script>
-(function() {
-  const BATCH_SIZE = 4;
-
-  // DOM refs
-  const $ = id => document.getElementById(id);
-  const apiKeyInput = $('apiKey');
-  const uploadZone = $('uploadZone');
-  const fileInput = $('fileInput');
-  const animAction = $('animAction');
-  const extraPrompt = $('extraPrompt');
-  const frameCountInput = $('frameCount');
-  const frameBreakdown = $('frameBreakdown');
-  const batchInfo = $('batchInfo');
-  const generateBtn = $('generateBtn');
-  const statusDot = $('statusDot');
-  const statusText_ = $('statusText');
-  const progressContainer = $('progressContainer');
-  const progressBar = $('progressBar');
-  const progressLabel = $('progressLabel');
-  const previewArea = $('previewArea');
-  const framesGridWrapper = $('framesGridWrapper');
-  const framesGrid = $('framesGrid');
-  const spritesheetSection = $('spritesheetSection');
-  const spritesheetCanvas = $('spritesheetCanvas');
-  const downloadSheetBtn = $('downloadSheet');
-  const downloadZipBtn = $('downloadZip');
-  const animPreviewBar = $('animPreviewBar');
-  const animPreviewImg = $('animPreviewImg');
-  const fpsSlider = $('fpsSlider');
-  const fpsValue = $('fpsValue');
-  const debugPanel = $('debugPanel');
-  const debugToggle = $('debugToggle');
-  const rawStripSection = $('rawStripSection');
-  const rawStripImg = $('rawStripImg');
-  const splitChooser = $('splitChooser');
-  const splitChooserStrips = $('splitChooserStrips');
-  const chooserAuto = $('chooserAuto');
-  const chooserManual = $('chooserManual');
-  const applySplitBtn = $('applySplitBtn');
-  const resplitBtn = $('resplitBtn');
-
-  // Manual crop refs
-  const manualCropSection = $('manualCropSection');
-  const cropWInput = $('cropW');
-  const cropHInput = $('cropH');
-  const cropMatchSprite = $('cropMatchSprite');
-  const cropFrameTag = $('cropFrameTag');
-  const cropFrameLabel = $('cropFrameLabel');
-  const cropCanvasWrap = $('cropCanvasWrap');
-  const cropCanvas = $('cropCanvas');
-  const cropPreview = $('cropPreview');
-  const cropUndoBtn = $('cropUndoBtn');
-  const cropDoneBtn = $('cropDoneBtn');
-  const cropFinishBtn = $('cropFinishBtn');
-
-  let uploadedImageBase64 = null;
-  let uploadedImageType = null;
-  let generatedFrames = [];
-  let animInterval = null;
-  let isGenerating = false;
-  let splitMode = 'auto'; // 'auto' or 'manual'
-  let spriteWidth = 0;
-  let spriteHeight = 0;
-  let savedRawStripUrls = []; // persist raw strips for re-splitting
-  let savedAllFrameLabels = []; // persist frame labels for re-splitting
-  let savedBatches = []; // persist batch structure for auto-split
-
-  // ─── SPLIT CHOOSER TOGGLE ─────────────────────
-  chooserAuto.addEventListener('click', () => {
-    splitMode = 'auto';
-    chooserAuto.classList.add('active');
-    chooserManual.classList.remove('active');
-  });
-  chooserManual.addEventListener('click', () => {
-    splitMode = 'manual';
-    chooserManual.classList.add('active');
-    chooserAuto.classList.remove('active');
-  });
-
-  // ─── APPLY SPLIT ────────────────────────────────
-  async function applySplit() {
-    splitChooser.classList.remove('visible');
-    generatedFrames = [];
-    framesGrid.innerHTML = '';
-    framesGridWrapper.classList.remove('visible');
-    spritesheetSection.classList.remove('visible');
-    animPreviewBar.classList.remove('visible');
-    manualCropSection.classList.remove('visible');
-
-    if (splitMode === 'auto') {
-      setStatus('Auto-splitting frames...', 'active');
-      for (let bi = 0; bi < savedBatches.length; bi++) {
-        const batch = savedBatches[bi];
-        const frameUrls = await autoSplitStrip(savedRawStripUrls[bi], batch.length);
-        for (let i = 0; i < batch.length; i++) {
-          generatedFrames.push({ label: batch[i].label, dataUrl: frameUrls[i] });
-          addFrameCard(batch[i].label, frameUrls[i]);
-        }
-      }
-      setStatus(`Done! ${generatedFrames.length} frames auto-split`, 'done');
-      framesGridWrapper.classList.add('visible');
-      buildSpritesheet();
-      startAnimPreview();
-      isGenerating = false;
-      generateBtn.disabled = false;
-      checkReady();
-    } else {
-      setStatus(`${savedRawStripUrls.length} strips ready — crop each frame manually`, 'done');
-      startManualCrop(savedRawStripUrls, savedAllFrameLabels);
-    }
-  }
-
-  applySplitBtn.addEventListener('click', applySplit);
-
-  resplitBtn.addEventListener('click', () => {
-    // Reset split results and show chooser again
-    if (animInterval) clearInterval(animInterval);
-    generatedFrames = [];
-    framesGrid.innerHTML = '';
-    framesGridWrapper.classList.remove('visible');
-    spritesheetSection.classList.remove('visible');
-    animPreviewBar.classList.remove('visible');
-    manualCropSection.classList.remove('visible');
-    previewArea.classList.add('empty');
-    previewArea.innerHTML = '';
-    showSplitChooser();
-  });
-
-  function showSplitChooser() {
-    // Populate strip previews
-    splitChooserStrips.innerHTML = '';
-    savedRawStripUrls.forEach((url, i) => {
-      splitChooserStrips.innerHTML += `<div class="strip-label">Batch ${i + 1}</div><img src="${url}" />`;
-    });
-    splitChooser.classList.add('visible');
-  }
-
-  // ─── BREAKDOWN ────────────────────────────────
-  function calcBreakdown(total) {
-    const transIn = Math.max(1, Math.round(total * 0.25));
-    const transOut = Math.max(1, Math.round(total * 0.25));
-    return { transIn, cycle: total - transIn - transOut, transOut };
-  }
-
-  function updateBreakdown() {
-    const total = parseInt(frameCountInput.value) || 8;
-    const b = calcBreakdown(total);
-    const action = animAction.value.trim() || '___';
-    frameBreakdown.innerHTML =
-      `→ idle_to_${action}: <b>${b.transIn}</b><br>` +
-      `→ ${action}_cycle: <b>${b.cycle}</b><br>` +
-      `→ ${action}_to_idle: <b>${b.transOut}</b>`;
-    const calls = Math.ceil(total / BATCH_SIZE);
-    batchInfo.textContent = `${calls} API call${calls > 1 ? 's' : ''} (${BATCH_SIZE} frames/batch)`;
-  }
-
-  frameCountInput.addEventListener('input', updateBreakdown);
-  animAction.addEventListener('input', () => { updateBreakdown(); checkReady(); });
-  updateBreakdown();
-
-  // ─── UPLOAD ───────────────────────────────────
-  uploadZone.addEventListener('click', () => fileInput.click());
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.background = '#000'; uploadZone.style.color = '#f0ece4'; });
-  uploadZone.addEventListener('dragleave', () => { if (!uploadedImageBase64) { uploadZone.style.background = '#fff'; uploadZone.style.color = ''; }});
-  uploadZone.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
-  fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
-
-  function handleFile(file) {
-    if (!file.type.startsWith('image/')) return;
-    uploadedImageType = file.type;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      uploadedImageBase64 = e.target.result.split(',')[1];
-      uploadZone.innerHTML = `<img src="${e.target.result}" />`;
-      uploadZone.classList.add('has-image');
-      uploadZone.style.background = '#fff';
-      uploadZone.style.color = '';
-      await measureSprite(e.target.result);
-      cropWInput.value = spriteWidth;
-      cropHInput.value = spriteHeight;
-      setStatus(`Sprite uploaded (${spriteWidth}x${spriteHeight}) — configure and generate`, '');
-      checkReady();
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function measureSprite(dataUrl) {
-    return new Promise(res => {
-      const img = new Image();
-      img.onload = () => { spriteWidth = img.naturalWidth; spriteHeight = img.naturalHeight; res(); };
-      img.src = dataUrl;
-    });
-  }
-
-  function checkReady() {
-    generateBtn.disabled = !(uploadedImageBase64 && animAction.value.trim() && apiKeyInput.value.trim()) || isGenerating;
-  }
-  apiKeyInput.addEventListener('input', checkReady);
-
-  function setStatus(text, state) {
-    statusText_.textContent = text;
-    statusDot.className = 'status-dot' + (state ? ' ' + state : '');
-  }
-
-  debugToggle.addEventListener('click', () => {
-    debugPanel.classList.toggle('visible');
-    debugToggle.textContent = debugPanel.classList.contains('visible') ? 'Hide Debug' : 'Show Debug';
-  });
-
-  // ─── PROMPT ───────────────────────────────────
-  function buildBatchPrompt(action, batchFrameDescs, totalFrames, extra, hasPrevStrip, batchIndex, totalBatches) {
-    const count = batchFrameDescs.length;
-    const frameW = spriteWidth || 64;
-    const frameH = spriteHeight || 64;
-    const totalStripW = frameW * count;
-
-    // Simple frame list — just numbered with short description
-    const frameList = batchFrameDescs.map((f, i) => `  ${i + 1}. ${f.desc}`).join('\n');
-
-    let intro, contBlock = '';
-    if (hasPrevStrip) {
-      intro = `Look at the first image — that is the character reference. The second image is the sprite strip you made for the previous batch. Now continue the animation.`;
-      contBlock = `Your first frame must continue exactly from where the last frame (rightmost) of the previous strip ended. Same character, same style, same size, same colors. Do not redraw or reinterpret the character.`;
-    } else {
-      intro = `Look at the image — that is the character. Animate it.`;
-    }
-
-    return `${intro}
-
-Draw a ${totalStripW}x${frameH} pixel sprite strip containing exactly ${count} frames of the "${action}" animation. Each frame is ${frameW}x${frameH} pixels.
-
-Layout: ${count} frames side by side in one row, left to right, no gaps, no padding, no borders. The image must be exactly ${totalStripW} pixels wide and ${frameH} pixels tall.
-${contBlock ? '\n' + contBlock + '\n' : ''}
-Frames:
-${frameList}
-
-Rules:
-- White background
-- Same pixel art style and colors as reference
-- Same character scale — do not enlarge or shrink
-- Feet stay at same Y position across all frames
-- No text, labels, or annotations
-- No overlapping — each character fits fully inside its ${frameW}x${frameH} cell
-${extra ? '\n' + extra : ''}
-Output only the image.`;
-  }
-
-  // ─── IMAGE EXTRACTION ────────────────────────
-  function extractImage(data) {
-    const msg = data.choices?.[0]?.message;
-    if (!msg) return null;
-    if (msg.parts) {
-      for (const p of msg.parts) {
-        if (p.inline_data?.data) return `data:${p.inline_data.mime_type || 'image/png'};base64,${p.inline_data.data}`;
-      }
-    }
-    if (Array.isArray(msg.content)) {
-      for (const p of msg.content) {
-        if (p.type === 'image_url' && p.image_url?.url) return p.image_url.url;
-        if (p.type === 'image') {
-          if (p.source?.data) return `data:${p.source.media_type || 'image/png'};base64,${p.source.data}`;
-          if (p.url) return p.url;
-          if (p.image_url?.url) return p.image_url.url;
-        }
-      }
-      for (const p of msg.content) {
-        if (p.type === 'text' && p.text) { const f = findB64(p.text); if (f) return f; }
-      }
-    }
-    if (typeof msg.content === 'string' && msg.content) { const f = findB64(msg.content); if (f) return f; }
-    return deepScan(data);
-  }
-
-  function findB64(text) {
-    const md = text.match(/!\[.*?\]\((data:image\/[^)]+)\)/);
-    if (md) return md[1];
-    const raw = text.match(/data:image\/[a-z]+;base64,[A-Za-z0-9+/=]{100,}/);
-    if (raw) return raw[0];
-    return null;
-  }
-
-  function deepScan(obj, d = 0) {
-    if (d > 8 || !obj) return null;
-    if (typeof obj === 'string') {
-      if (obj.length > 200 && /^[A-Za-z0-9+/=\n]+$/.test(obj)) return `data:image/png;base64,${obj.replace(/\n/g, '')}`;
-      if (obj.startsWith('data:image/')) return obj;
-      return null;
-    }
-    if (Array.isArray(obj)) { for (const i of obj) { const f = deepScan(i, d+1); if (f) return f; } }
-    else if (typeof obj === 'object') {
-      if (obj.data && obj.mime_type?.startsWith('image/')) return `data:${obj.mime_type};base64,${obj.data}`;
-      if (obj.inline_data?.data) return `data:${obj.inline_data.mime_type || 'image/png'};base64,${obj.inline_data.data}`;
-      for (const k of Object.keys(obj)) {
-        if (['reasoning_details','reasoning','logprobs'].includes(k)) continue;
-        const f = deepScan(obj[k], d+1); if (f) return f;
-      }
-    }
-    return null;
-  }
-
-  // ─── AUTO SPLIT (content-aware) ──────────────
-  function autoSplitStrip(imageDataUrl, expectedCount) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        const W = img.naturalWidth, H = img.naturalHeight;
-        const src = document.createElement('canvas');
-        src.width = W; src.height = H;
-        const sctx = src.getContext('2d');
-        sctx.drawImage(img, 0, 0);
-        const px = sctx.getImageData(0, 0, W, H);
-
-        // Score each column by pixel variance
-        const scores = new Float32Array(W);
-        for (let x = 0; x < W; x++) {
-          let v = 0, pr = -1, pg = -1, pb = -1;
-          for (let y = 0; y < H; y++) {
-            const i = (y * W + x) * 4;
-            const r = px.data[i], g = px.data[i+1], b = px.data[i+2], a = px.data[i+3];
-            if (a < 10) continue;
-            if (pr >= 0) v += Math.abs(r-pr) + Math.abs(g-pg) + Math.abs(b-pb);
-            pr = r; pg = g; pb = b;
-          }
-          scores[x] = v;
-        }
-
-        const ew = Math.round(W / expectedCount);
-        const splits = [0];
-        for (let f = 1; f < expectedCount; f++) {
-          const target = Math.round(f * ew);
-          const radius = Math.round(ew * 0.15);
-          let bx = target, bs = Infinity;
-          for (let x = Math.max(1, target - radius); x < Math.min(W - 1, target + radius); x++) {
-            const s = (scores[x-1] + scores[x] + scores[x+1]) / 3;
-            if (s < bs) { bs = s; bx = x; }
-          }
-          splits.push(bx);
-        }
-        splits.push(W);
-
-        // Determine output size: use sprite dimensions, SCALE DOWN if AI generated bigger
-        const outW = spriteWidth || ew;
-        const outH = spriteHeight || H;
-        const frames = [];
-
-        for (let i = 0; i < expectedCount; i++) {
-          const sx = splits[i], sw = splits[i+1] - sx;
-          const fc = document.createElement('canvas');
-          fc.width = outW; fc.height = outH;
-          const fctx = fc.getContext('2d');
-          fctx.fillStyle = '#ffffff';
-          fctx.fillRect(0, 0, outW, outH);
-
-          // Scale the extracted region to fit the output frame while preserving aspect ratio
-          const scaleX = outW / sw;
-          const scaleY = outH / H;
-          const scale = Math.min(scaleX, scaleY); // fit inside, don't stretch
-          const dw = Math.round(sw * scale);
-          const dh = Math.round(H * scale);
-          const dx = Math.round((outW - dw) / 2);
-          const dy = Math.round((outH - dh) / 2);
-          fctx.drawImage(src, sx, 0, sw, H, dx, dy, dw, dh);
-
-          frames.push(fc.toDataURL('image/png'));
-        }
-        resolve(frames);
-      };
-      img.onerror = () => reject(new Error('Failed to load strip'));
-      img.src = imageDataUrl;
-    });
-  }
-
-  // ─── MANUAL CROP ─────────────────────────────
-  let manualStripImages = []; // raw strip dataUrls from all batches combined into one
-  let manualAllLabels = [];
-  let manualCropIdx = 0;
-  let manualCroppedFrames = [];
-  let cropX = 0, cropY = 0;
-  let isDragging = false, dragStartX = 0, dragStartY = 0, dragStartCropX = 0, dragStartCropY = 0;
-  let combinedStripCanvas = null; // full strip of all batches stitched
-
-  function startManualCrop(stripDataUrls, labels) {
-    manualAllLabels = labels;
-    manualCropIdx = 0;
-    manualCroppedFrames = [];
-    cropX = 0; cropY = 0;
-
-    // Stitch all strip images into one long horizontal strip
-    const images = stripDataUrls.map(url => {
-      const img = new Image();
-      img.src = url;
-      return img;
-    });
-
-    Promise.all(images.map(img => new Promise(r => { if (img.complete) r(); else img.onload = r; }))).then(() => {
-      const totalW = images.reduce((s, i) => s + i.naturalWidth, 0);
-      const maxH = Math.max(...images.map(i => i.naturalHeight));
-
-      combinedStripCanvas = document.createElement('canvas');
-      combinedStripCanvas.width = totalW;
-      combinedStripCanvas.height = maxH;
-      const ctx = combinedStripCanvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, totalW, maxH);
-      let ox = 0;
-      for (const img of images) {
-        ctx.drawImage(img, ox, 0);
-        ox += img.naturalWidth;
-      }
-
-      manualCropSection.classList.add('visible');
-      if (spriteWidth && spriteHeight) {
-        cropWInput.value = spriteWidth;
-        cropHInput.value = spriteHeight;
-      }
-      drawCropCanvas();
-      updateCropUI();
-    });
-  }
-
-  function drawCropCanvas() {
-    if (!combinedStripCanvas) return;
-    const cw = parseInt(cropWInput.value) || 128;
-    const ch = parseInt(cropHInput.value) || 128;
-
-    // Scale up for visibility (2x minimum)
-    const displayScale = Math.max(2, Math.min(4, 800 / combinedStripCanvas.width));
-    const dw = Math.round(combinedStripCanvas.width * displayScale);
-    const dh = Math.round(combinedStripCanvas.height * displayScale);
-
-    cropCanvas.width = dw;
-    cropCanvas.height = dh;
-    const ctx = cropCanvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(combinedStripCanvas, 0, 0, dw, dh);
-
-    // Draw crop rectangle
-    const rx = Math.round(cropX * displayScale);
-    const ry = Math.round(cropY * displayScale);
-    const rw = Math.round(cw * displayScale);
-    const rh = Math.round(ch * displayScale);
-
-    // Dim outside crop
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(0, 0, dw, ry);
-    ctx.fillRect(0, ry + rh, dw, dh - ry - rh);
-    ctx.fillRect(0, ry, rx, rh);
-    ctx.fillRect(rx + rw, ry, dw - rx - rw, rh);
-
-    // Crop border
-    ctx.strokeStyle = '#ff4d00';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
-    ctx.strokeRect(rx, ry, rw, rh);
-    ctx.setLineDash([]);
-
-    // Corner handles
-    ctx.fillStyle = '#ff4d00';
-    const hs = 6;
-    [[rx, ry], [rx + rw, ry], [rx, ry + rh], [rx + rw, ry + rh]].forEach(([hx, hy]) => {
-      ctx.fillRect(hx - hs/2, hy - hs/2, hs, hs);
-    });
-
-    // Draw preview
-    const cw2 = cw, ch2 = ch;
-    const ps = Math.max(2, Math.min(4, 200 / Math.max(cw2, ch2)));
-    cropPreview.width = Math.round(cw2 * ps);
-    cropPreview.height = Math.round(ch2 * ps);
-    const pctx = cropPreview.getContext('2d');
-    pctx.imageSmoothingEnabled = false;
-    pctx.fillStyle = '#ffffff';
-    pctx.fillRect(0, 0, cropPreview.width, cropPreview.height);
-    pctx.drawImage(combinedStripCanvas, cropX, cropY, cw2, ch2, 0, 0, cropPreview.width, cropPreview.height);
-  }
-
-  function updateCropUI() {
-    const total = manualAllLabels.length;
-    cropFrameTag.textContent = `Frame ${manualCropIdx + 1} / ${total}`;
-    cropFrameLabel.textContent = manualAllLabels[manualCropIdx] || '';
-    cropUndoBtn.disabled = manualCropIdx === 0;
-    cropFinishBtn.disabled = manualCropIdx < total - 1;
-    cropDoneBtn.textContent = manualCropIdx < total - 1 ? 'Crop Frame →' : 'Crop Last Frame';
-  }
-
-  // Drag to move crop rect
-  cropCanvasWrap.addEventListener('mousedown', e => {
-    isDragging = true;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragStartCropX = cropX;
-    dragStartCropY = cropY;
-    e.preventDefault();
-  });
-
-  window.addEventListener('mousemove', e => {
-    if (!isDragging || !combinedStripCanvas) return;
-    const displayScale = cropCanvas.width / combinedStripCanvas.width;
-    const dx = (e.clientX - dragStartX) / displayScale;
-    const dy = (e.clientY - dragStartY) / displayScale;
-    const cw = parseInt(cropWInput.value) || 128;
-    const ch = parseInt(cropHInput.value) || 128;
-    cropX = Math.max(0, Math.min(combinedStripCanvas.width - cw, Math.round(dragStartCropX + dx)));
-    cropY = Math.max(0, Math.min(combinedStripCanvas.height - ch, Math.round(dragStartCropY + dy)));
-    drawCropCanvas();
-  });
-
-  window.addEventListener('mouseup', () => { isDragging = false; });
-
-  cropWInput.addEventListener('input', drawCropCanvas);
-  cropHInput.addEventListener('input', drawCropCanvas);
-  cropMatchSprite.addEventListener('click', () => {
-    if (spriteWidth && spriteHeight) {
-      cropWInput.value = spriteWidth;
-      cropHInput.value = spriteHeight;
-      drawCropCanvas();
-    }
-  });
-
-  cropDoneBtn.addEventListener('click', () => {
-    if (!combinedStripCanvas) return;
-    const cw = parseInt(cropWInput.value) || 128;
-    const ch = parseInt(cropHInput.value) || 128;
-
-    // Extract the cropped frame
-    const fc = document.createElement('canvas');
-    fc.width = cw; fc.height = ch;
-    const fctx = fc.getContext('2d');
-    fctx.fillStyle = '#ffffff';
-    fctx.fillRect(0, 0, cw, ch);
-    fctx.drawImage(combinedStripCanvas, cropX, cropY, cw, ch, 0, 0, cw, ch);
-
-    const dataUrl = fc.toDataURL('image/png');
-    manualCroppedFrames.push({ label: manualAllLabels[manualCropIdx], dataUrl });
-    addFrameCard(manualAllLabels[manualCropIdx], dataUrl);
-
-    manualCropIdx++;
-    if (manualCropIdx < manualAllLabels.length) {
-      // Advance crop position to the right by one frame width
-      cropX = Math.min(combinedStripCanvas.width - cw, cropX + cw);
-      drawCropCanvas();
-      updateCropUI();
-    } else {
-      updateCropUI();
-    }
-  });
-
-  cropUndoBtn.addEventListener('click', () => {
-    if (manualCropIdx <= 0) return;
-    manualCropIdx--;
-    manualCroppedFrames.pop();
-    // Remove last frame card
-    if (framesGrid.lastChild) framesGrid.removeChild(framesGrid.lastChild);
-    const cw = parseInt(cropWInput.value) || 128;
-    cropX = Math.max(0, cropX - cw);
-    drawCropCanvas();
-    updateCropUI();
-  });
-
-  cropFinishBtn.addEventListener('click', () => {
-    // If on last frame and not yet cropped, crop it first
-    if (manualCropIdx === manualAllLabels.length - 1 && manualCroppedFrames.length < manualAllLabels.length) {
-      cropDoneBtn.click();
-    }
-    manualCropSection.classList.remove('visible');
-    generatedFrames = [...manualCroppedFrames];
-    framesGridWrapper.classList.add('visible');
-    buildSpritesheet();
-    startAnimPreview();
-    setStatus(`Done! ${generatedFrames.length} frames manually cropped`, 'done');
-    isGenerating = false;
-    generateBtn.disabled = false;
-    checkReady();
-  });
-
-  // ─── BUILD FRAME LIST ────────────────────────
-  function buildFrameList(action, actionDisplay, breakdown) {
-    const frames = [];
-    for (let i = 0; i < breakdown.transIn; i++) {
-      const num = String(i + 1).padStart(2, '0');
-      const progress = i === 0 ? 'starting' : i === breakdown.transIn - 1 ? 'almost in full ' + actionDisplay : 'mid-transition';
-      frames.push({
-        label: `idle_to_${action}_${num}`,
-        desc: `Idle → ${actionDisplay} (${progress})`
-      });
-    }
-    for (let i = 0; i < breakdown.cycle; i++) {
-      const num = String(i + 1).padStart(2, '0');
-      frames.push({
-        label: `${action}_cycle_${num}`,
-        desc: `${actionDisplay} loop ${i + 1}/${breakdown.cycle}`
-      });
-    }
-    for (let i = 0; i < breakdown.transOut; i++) {
-      const num = String(i + 1).padStart(2, '0');
-      const progress = i === 0 ? 'starting to slow' : i === breakdown.transOut - 1 ? 'nearly back to idle' : 'mid-transition';
-      frames.push({
-        label: `${action}_to_idle_${num}`,
-        desc: `${actionDisplay} → idle (${progress})`
-      });
-    }
-    return frames;
-  }
-
-  // ─── MAIN GENERATE ───────────────────────────
-  async function generate() {
-    const apiKey = apiKeyInput.value.trim();
-    const action = animAction.value.trim().toLowerCase().replace(/\s+/g, '_');
-    const actionDisplay = animAction.value.trim();
-    const total = parseInt(frameCountInput.value) || 8;
-    const extra = extraPrompt.value.trim();
-    const breakdown = calcBreakdown(total);
-
-    await measureSprite(`data:${uploadedImageType};base64,${uploadedImageBase64}`);
-
-    isGenerating = true;
-    generateBtn.disabled = true;
-    generatedFrames = [];
-    savedRawStripUrls = [];
-    savedAllFrameLabels = [];
-    savedBatches = [];
-    framesGrid.innerHTML = '';
-    framesGridWrapper.classList.remove('visible');
-    spritesheetSection.classList.remove('visible');
-    animPreviewBar.classList.remove('visible');
-    manualCropSection.classList.remove('visible');
-    splitChooser.classList.remove('visible');
-    previewArea.classList.add('empty');
-    previewArea.innerHTML = '';
-    progressContainer.classList.add('visible');
-    debugPanel.textContent = '';
-    debugPanel.classList.remove('visible');
-    debugToggle.style.display = 'none';
-    rawStripSection.style.display = 'none';
-    rawStripImg.innerHTML = '';
-
-    const allFrames = buildFrameList(action, actionDisplay, breakdown);
-
-    const batches = [];
-    for (let i = 0; i < allFrames.length; i += BATCH_SIZE) {
-      batches.push(allFrames.slice(i, i + BATCH_SIZE));
-    }
-
-    setStatus(`Generating batch 1/${batches.length}...`, 'active');
-
-    let lastStripDataUrl = null;
-    const rawStripUrls = [];
-
-    for (let bi = 0; bi < batches.length; bi++) {
-      const batch = batches[bi];
-      progressBar.style.width = `${(bi / batches.length) * 100}%`;
-      progressLabel.textContent = `Batch ${bi + 1} / ${batches.length}`;
-      setStatus(`Generating batch ${bi+1}/${batches.length}: ${batch.map(f=>f.label).join(', ')}`, 'active');
-
-      const hasPrev = bi > 0 && lastStripDataUrl;
-      const prompt = buildBatchPrompt(actionDisplay, batch, total, extra, hasPrev, bi, batches.length);
-
-      const contentParts = [
-        { type: 'image_url', image_url: { url: `data:${uploadedImageType};base64,${uploadedImageBase64}` } }
-      ];
-      if (hasPrev) {
-        // Send the FULL previous batch strip for style/animation continuity
-        contentParts.push({ type: 'image_url', image_url: { url: lastStripDataUrl } });
-      }
-      contentParts.push({ type: 'text', text: prompt });
-
-      try {
-        const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'google/gemini-3.1-flash-image-preview',
-            messages: [{ role: 'user', content: contentParts }],
-            modalities: ['text', 'image'],
-            generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
-            provider: { order: ['Google AI Studio'], allow_fallbacks: false, require_parameters: true },
-          })
-        });
-
-        if (!resp.ok) {
-          const e = await resp.json().catch(() => ({}));
-          throw new Error(e.error?.message || `API error ${resp.status}`);
-        }
-
-        const data = await resp.json();
-        const ds = JSON.stringify(data, null, 2);
-        console.log(`Batch ${bi+1}:`, ds);
-        debugToggle.style.display = 'block';
-        debugPanel.textContent += `── BATCH ${bi+1} ──\n${ds}\n\n`;
-
-        const imageUrl = extractImage(data);
-
-        if (!imageUrl) {
-          const msg = data.choices?.[0]?.message || {};
-          const keys = Object.keys(msg).filter(k => msg[k] != null);
-          throw new Error(
-            `No image. Keys: [${keys}], content=${msg.content===null?'null':typeof msg.content}` +
-            (msg.reasoning_details ? '. Model reasoned but no image — modality may not be enabled.' : '') +
-            ' See debug panel.'
-          );
-        }
-
-        rawStripSection.style.display = 'block';
-        rawStripImg.innerHTML += `<div style="margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;color:#888;">Batch ${bi+1}</div><img src="${imageUrl}" style="image-rendering:pixelated;max-height:100px;margin-bottom:12px;" /><br>`;
-
-        rawStripUrls.push(imageUrl);
-
-        // Store the full raw strip for continuity — next batch sees the whole previous strip
-        lastStripDataUrl = imageUrl;
-
-        // Show latest strip in preview
-        previewArea.classList.remove('empty');
-        ensurePreviewImg();
-        previewImg.src = imageUrl;
-
-      } catch (err) {
-        setStatus(`Error batch ${bi+1}: ${err.message}`, 'error');
-        debugToggle.style.display = 'block';
-        progressContainer.classList.remove('visible');
-        isGenerating = false;
-        generateBtn.disabled = false;
-        checkReady();
-        return;
-      }
-    }
-
-    progressBar.style.width = '100%';
-    progressLabel.textContent = `${batches.length} / ${batches.length}`;
-    setTimeout(() => progressContainer.classList.remove('visible'), 1500);
-
-    // Save state for split/re-split
-    savedRawStripUrls = [...rawStripUrls];
-    savedAllFrameLabels = allFrames.map(f => f.label);
-    savedBatches = batches;
-
-    setStatus(`Done! ${allFrames.length} frames in ${batches.length} batches — choose split mode`, 'done');
-    showSplitChooser();
-  }
-
-  // ─── FRAME CARDS ─────────────────────────────
-  function addFrameCard(label, dataUrl) {
-    framesGridWrapper.classList.add('visible');
-    const card = document.createElement('div');
-    card.className = 'frame-card';
-    card.innerHTML = `<div class="frame-card-img"><img src="${dataUrl}" /></div><div class="frame-card-label">${label}</div>`;
-    framesGrid.appendChild(card);
-  }
-
-  // ─── SPRITESHEET ─────────────────────────────
-  function buildSpritesheet() {
-    if (!generatedFrames.length) return;
-    spritesheetSection.classList.add('visible');
-    const images = generatedFrames.map(f => { const i = new Image(); i.src = f.dataUrl; return i; });
-    Promise.all(images.map(i => new Promise(r => { if (i.complete) r(); else i.onload = r; }))).then(() => {
-      const mw = Math.max(...images.map(i => i.naturalWidth));
-      const mh = Math.max(...images.map(i => i.naturalHeight));
-      spritesheetCanvas.width = mw * images.length;
-      spritesheetCanvas.height = mh;
-      const ctx = spritesheetCanvas.getContext('2d');
-      ctx.clearRect(0, 0, spritesheetCanvas.width, spritesheetCanvas.height);
-      images.forEach((img, i) => {
-        ctx.drawImage(img, i * mw + (mw - img.naturalWidth) / 2, (mh - img.naturalHeight) / 2);
-      });
-    });
-  }
-
-  // ─── ANIMATION PREVIEW ───────────────────────
-  let previewImg = null; // persistent img element for smooth playback
-
-  function ensurePreviewImg() {
-    if (!previewImg || !previewArea.contains(previewImg)) {
-      previewArea.classList.remove('empty');
-      previewArea.innerHTML = '';
-      previewImg = document.createElement('img');
-      previewImg.className = 'preview-sprite';
-      previewArea.appendChild(previewImg);
-    }
-  }
-
-  function runAnimLoop(fps) {
-    if (animInterval) clearInterval(animInterval);
-    if (!generatedFrames.length) return;
-    let cur = 0;
-    ensurePreviewImg();
-    previewImg.src = generatedFrames[0].dataUrl;
-    animPreviewImg.src = generatedFrames[0].dataUrl;
-    animInterval = setInterval(() => {
-      cur = (cur + 1) % generatedFrames.length;
-      const url = generatedFrames[cur].dataUrl;
-      previewImg.src = url;
-      animPreviewImg.src = url;
-    }, 1000 / fps);
-  }
-
-  function startAnimPreview() {
-    if (!generatedFrames.length) return;
-    animPreviewBar.classList.add('visible');
-    runAnimLoop(parseInt(fpsSlider.value));
-  }
-
-  fpsSlider.addEventListener('input', () => {
-    const fps = parseInt(fpsSlider.value);
-    fpsValue.textContent = `${fps} FPS`;
-    if (generatedFrames.length) runAnimLoop(fps);
-  });
-
-  // ─── DOWNLOADS ────────────────────────────────
-  downloadSheetBtn.addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.download = `spritesheet_${animAction.value.trim().replace(/\s+/g,'_')}.png`;
-    a.href = spritesheetCanvas.toDataURL('image/png');
-    a.click();
-  });
-
-  downloadZipBtn.addEventListener('click', async () => {
-    if (!generatedFrames.length) return;
-    const zip = new JSZip();
-    const act = animAction.value.trim().replace(/\s+/g,'_');
-    const folder = zip.folder(`${act}_frames`);
-    for (const f of generatedFrames) {
-      const r = await fetch(f.dataUrl);
-      folder.file(`${f.label}.png`, await r.blob());
-    }
-    const blob = await zip.generateAsync({ type: 'blob' });
-    const a = document.createElement('a');
-    a.download = `${act}_frames.zip`;
-    a.href = URL.createObjectURL(blob);
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
-
-  generateBtn.addEventListener('click', generate);
-})();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
